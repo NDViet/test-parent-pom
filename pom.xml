@@ -79,7 +79,7 @@
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <jackson-databind.version>2.18.2</jackson-databind.version>
         <freemarker.version>2.3.34</freemarker.version>
-        <spring-core.version>6.2.1</spring-core.version>
+        <spring-core.version>6.2.2</spring-core.version>
         <javalib-core.version>2.0.3</javalib-core.version>
         <robotframework.version>4.1.2</robotframework.version>
         <testng.version>7.10.2</testng.version>
