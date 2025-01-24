@@ -67,7 +67,7 @@
         <webdriverextensions-maven-plugin.version>4.0.0</webdriverextensions-maven-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <webdriverextensions.version>3.11.2</webdriverextensions.version>
-        <selenium-java.version>4.27.0</selenium-java.version>
+        <selenium-java.version>4.28.1</selenium-java.version>
         <qatools.ashot>1.5.4</qatools.ashot>
         <snakeyaml.version>2.3</snakeyaml.version>
         <sshd-core.version>2.14.0</sshd-core.version>
