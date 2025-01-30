@@ -86,7 +86,7 @@
         <cucumber-java.version>7.20.1</cucumber-java.version>
         <cucumber-testng.version>7.20.1</cucumber-testng.version>
         <cucumber-gherkin.version>7.20.1</cucumber-gherkin.version>
-        <gherkin.version>30.0.4</gherkin.version>
+        <gherkin.version>31.0.0</gherkin.version>
         <rest-assured.version>5.5.0</rest-assured.version>
         <io.fabric8.kubernetes-client.version>7.0.1</io.fabric8.kubernetes-client.version>
         <apache.poi.version>5.4.0</apache.poi.version>
