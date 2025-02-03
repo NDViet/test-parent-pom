@@ -83,7 +83,7 @@
         <javalib-core.version>2.0.3</javalib-core.version>
         <robotframework.version>4.1.2</robotframework.version>
         <testng.version>7.10.2</testng.version>
-        <cucumber-java.version>7.20.1</cucumber-java.version>
+        <cucumber-java.version>7.21.0</cucumber-java.version>
         <cucumber-testng.version>7.20.1</cucumber-testng.version>
         <cucumber-gherkin.version>7.20.1</cucumber-gherkin.version>
         <gherkin.version>30.0.4</gherkin.version>
