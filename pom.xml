@@ -69,7 +69,7 @@
         <webdriverextensions.version>3.11.2</webdriverextensions.version>
         <selenium-java.version>4.27.0</selenium-java.version>
         <qatools.ashot>1.5.4</qatools.ashot>
-        <snakeyaml.version>2.3</snakeyaml.version>
+        <snakeyaml.version>2.4</snakeyaml.version>
         <sshd-core.version>2.14.0</sshd-core.version>
         <commons-io.version>2.18.0</commons-io.version>
         <javalib-core.version>2.0.3</javalib-core.version>
