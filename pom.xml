@@ -63,7 +63,7 @@
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
         <gmavenplus-plugin.version>4.1.1</gmavenplus-plugin.version>
-        <apache.groovy.version>4.0.24</apache.groovy.version>
+        <apache.groovy.version>4.0.26</apache.groovy.version>
         <webdriverextensions-maven-plugin.version>4.0.0</webdriverextensions-maven-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <webdriverextensions.version>3.11.2</webdriverextensions.version>
