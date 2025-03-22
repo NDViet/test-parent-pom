@@ -45,7 +45,7 @@
         <github.organization>ndviet</github.organization>
         <github.branch>master</github.branch>
         <github.repository>test-parent-pom</github.repository>
-        <revision>23.11.15</revision>
+        <revision>25.3.0</revision>
         <test-automation-fwk.version>${revision}</test-automation-fwk.version>
         <test-java2robot-adapter.version>${revision}</test-java2robot-adapter.version>
         <java.version>17</java.version>
@@ -67,7 +67,7 @@
         <webdriverextensions-maven-plugin.version>4.0.0</webdriverextensions-maven-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <webdriverextensions.version>3.11.2</webdriverextensions.version>
-        <selenium-java.version>4.29.0</selenium-java.version>
+        <selenium-java.version>4.30.0</selenium-java.version>
         <qatools.ashot>1.5.4</qatools.ashot>
         <snakeyaml.version>2.4</snakeyaml.version>
         <sshd-core.version>2.15.0</sshd-core.version>
@@ -84,7 +84,7 @@
         <robotframework.version>4.1.2</robotframework.version>
         <testng.version>7.11.0</testng.version>
         <cucumber-java.version>7.21.1</cucumber-java.version>
-        <cucumber-testng.version>7.20.1</cucumber-testng.version>
+        <cucumber-testng.version>7.21.1</cucumber-testng.version>
         <cucumber-gherkin.version>7.21.1</cucumber-gherkin.version>
         <gherkin.version>32.0.0</gherkin.version>
         <rest-assured.version>5.5.1</rest-assured.version>
