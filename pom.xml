@@ -76,7 +76,7 @@
         <json-path.version>2.9.0</json-path.version>
         <log4j2.version>2.24.3</log4j2.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
         <jackson-databind.version>2.18.3</jackson-databind.version>
         <freemarker.version>2.3.34</freemarker.version>
         <spring-core.version>6.2.5</spring-core.version>
