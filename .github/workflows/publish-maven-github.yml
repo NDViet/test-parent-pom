@@ -33,9 +33,33 @@ jobs:
           server-username: GITHUB_ACTOR
           server-password: GITHUB_TOKEN
 
+      - name: Resolve deploy revision
+        shell: bash
+        run: |
+          base_revision="$(sed -n 's|.*<revision>\([^<]*\)</revision>.*|\1|p' pom.xml | head -n 1)"
+          if [ -z "${base_revision}" ]; then
+            echo "Could not resolve <revision> from pom.xml"
+            exit 1
+          fi
+
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            # Tag pushes are release publishes: never keep SNAPSHOT suffix.
+            deploy_revision="${base_revision%-SNAPSHOT}"
+          else
+            # Master pushes are snapshot publishes.
+            if [[ "${base_revision}" == *-SNAPSHOT ]]; then
+              deploy_revision="${base_revision}"
+            else
+              deploy_revision="${base_revision}-SNAPSHOT"
+            fi
+          fi
+
+          echo "DEPLOY_REVISION=${deploy_revision}" >> "${GITHUB_ENV}"
+          echo "Deploy revision: ${deploy_revision}"
+
       - name: Publish to GitHub Maven Registry
         run: >
-          mvn -B -ntp -DskipTests clean deploy
+          mvn -B -ntp -DskipTests -Drevision=${{ env.DEPLOY_REVISION }} clean deploy
           -DaltDeploymentRepository=github::https://maven.pkg.github.com/${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
