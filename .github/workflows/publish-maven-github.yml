@@ -36,6 +36,6 @@ jobs:
       - name: Publish to GitHub Maven Registry
         run: >
           mvn -B -ntp -DskipTests clean deploy
-          -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }}
+          -DaltDeploymentRepository=github::https://maven.pkg.github.com/${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
