@@ -62,8 +62,8 @@ jobs:
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             # Tag pushes are release publishes.
             deploy_revision="${base_revision%-SNAPSHOT}"
-            deploy_tags="${IMAGE_NAME}:latest
-${IMAGE_NAME}:${deploy_revision}"
+            deploy_tags="${IMAGE_NAME}:latest"
+            deploy_tags+=$'\n'"${IMAGE_NAME}:${deploy_revision}"
           else
             # Master (or manual non-tag) publishes snapshot.
             if [[ "${base_revision}" == *-SNAPSHOT ]]; then
