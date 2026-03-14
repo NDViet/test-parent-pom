@@ -56,6 +56,13 @@ GitHub Actions workflow:
 
 - `.github/workflows/publish-java-base-image.yml`
 
+Workflow tagging behavior:
+
+- `push` on `master`: publishes `ndviet/test-automation-java-base:<revision>-SNAPSHOT`
+- `push` on tag `v*`: publishes release tags
+  - `ndviet/test-automation-java-base:latest`
+  - `ndviet/test-automation-java-base:<revision-without-SNAPSHOT>`
+
 Required repository secrets for publish:
 
 - `DOCKER_USERNAME`

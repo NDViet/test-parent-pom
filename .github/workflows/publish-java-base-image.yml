@@ -15,6 +15,8 @@ on:
   push:
     branches:
       - master
+    tags:
+      - "v*"
     paths:
       - ".github/workflows/publish-java-base-image.yml"
       - "containers/java-base/**"
@@ -47,16 +49,37 @@ jobs:
       - name: Verify Maven seed POM is committed
         run: git diff --exit-code -- containers/java-base/maven-seed/pom.xml
 
-      - name: Resolve revision from pom.xml
-        id: revision
+      - name: Resolve image tags
+        id: image_meta
         shell: bash
         run: |
-          revision="$(sed -n 's|.*<revision>\([^<]*\)</revision>.*|\1|p' pom.xml | head -n 1)"
-          if [ -z "${revision}" ]; then
+          base_revision="$(sed -n 's|.*<revision>\([^<]*\)</revision>.*|\1|p' pom.xml | head -n 1)"
+          if [ -z "${base_revision}" ]; then
             echo "Could not resolve <revision> from pom.xml"
             exit 1
           fi
-          echo "value=${revision}" >> "${GITHUB_OUTPUT}"
+
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            # Tag pushes are release publishes.
+            deploy_revision="${base_revision%-SNAPSHOT}"
+            deploy_tags="${IMAGE_NAME}:latest
+${IMAGE_NAME}:${deploy_revision}"
+          else
+            # Master (or manual non-tag) publishes snapshot.
+            if [[ "${base_revision}" == *-SNAPSHOT ]]; then
+              deploy_revision="${base_revision}"
+            else
+              deploy_revision="${base_revision}-SNAPSHOT"
+            fi
+            deploy_tags="${IMAGE_NAME}:${deploy_revision}"
+          fi
+
+          echo "revision=${deploy_revision}" >> "${GITHUB_OUTPUT}"
+          {
+            echo "tags<<EOF"
+            echo "${deploy_tags}"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
 
       - name: Set push mode
         id: push_mode
@@ -84,9 +107,7 @@ jobs:
           context: .
           file: containers/java-base/Dockerfile
           push: ${{ steps.push_mode.outputs.push }}
-          tags: |
-            ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ steps.revision.outputs.value }}
+          tags: ${{ steps.image_meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -94,5 +115,4 @@ jobs:
         if: steps.push_mode.outputs.push == 'true'
         run: |
           echo "Published image tags:"
-          echo "${IMAGE_NAME}:latest"
-          echo "${IMAGE_NAME}:${{ steps.revision.outputs.value }}"
+          echo "${{ steps.image_meta.outputs.tags }}"
