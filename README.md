@@ -20,3 +20,48 @@ In the same directory, clone this repository first and after that clone other de
 ```shell
 git clone git@github.com:ndviet/test-parent-pom.git
 ```
+
+## Java base image (for downstream repos)
+
+This repository provides a standalone base image: `test-automation-java-base`.
+
+It contains:
+
+- Java 17
+- Maven
+- Gradle CLI
+- Pre-seeded Maven local repository based on this parent POM dependency/plugin management
+- Offline-first execution defaults (`mvn -o`, `gradle --offline`) to prevent network fetch in downstream runs
+
+Build locally:
+
+```shell
+./containers/build-java-base-image.sh ndviet/test-automation-java-base
+```
+
+`containers/java-base/maven-seed/pom.xml` is generated from `pom.xml` by:
+
+```shell
+./containers/java-base/sync-maven-seed.sh
+```
+
+Do not update the seed POM manually.
+
+Tags created:
+
+- `ndviet/test-automation-java-base:latest`
+- `ndviet/test-automation-java-base:<revision>` (from `<revision>` in `pom.xml`)
+
+GitHub Actions workflow:
+
+- `.github/workflows/publish-java-base-image.yml`
+
+Required repository secrets for publish:
+
+- `DOCKER_USERNAME`
+- `DOCKER_PASSWORD`
+
+Optional runtime override (if online fetch is intentionally needed):
+
+- `FORCE_MAVEN_OFFLINE=false`
+- `FORCE_GRADLE_OFFLINE=false`

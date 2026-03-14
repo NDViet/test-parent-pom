@@ -1,0 +1,98 @@
+name: Publish Java Base Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_name:
+        description: "Docker Hub repository (namespace/name)"
+        required: false
+        default: "ndviet/test-automation-java-base"
+      push_image:
+        description: "Push built image to Docker Hub"
+        required: true
+        type: boolean
+        default: true
+  push:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/publish-java-base-image.yml"
+      - "containers/java-base/**"
+      - "containers/build-java-base-image.sh"
+      - "pom.xml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-java-base-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      IMAGE_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.image_name || vars.DOCKERHUB_JAVA_BASE_IMAGE || 'ndviet/test-automation-java-base' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install XML tooling
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libxml2-utils
+
+      - name: Sync Maven seed POM
+        run: ./containers/java-base/sync-maven-seed.sh
+
+      - name: Verify Maven seed POM is committed
+        run: git diff --exit-code -- containers/java-base/maven-seed/pom.xml
+
+      - name: Resolve revision from pom.xml
+        id: revision
+        shell: bash
+        run: |
+          revision="$(sed -n 's|.*<revision>\([^<]*\)</revision>.*|\1|p' pom.xml | head -n 1)"
+          if [ -z "${revision}" ]; then
+            echo "Could not resolve <revision> from pom.xml"
+            exit 1
+          fi
+          echo "value=${revision}" >> "${GITHUB_OUTPUT}"
+
+      - name: Set push mode
+        id: push_mode
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.push_image }}" = "false" ]; then
+            echo "push=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "push=true" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: steps.push_mode.outputs.push == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and publish image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: containers/java-base/Dockerfile
+          push: ${{ steps.push_mode.outputs.push }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ steps.revision.outputs.value }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Print published tags
+        if: steps.push_mode.outputs.push == 'true'
+        run: |
+          echo "Published image tags:"
+          echo "${IMAGE_NAME}:latest"
+          echo "${IMAGE_NAME}:${{ steps.revision.outputs.value }}"
