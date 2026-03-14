@@ -57,6 +57,20 @@ jobs:
           echo "DEPLOY_REVISION=${deploy_revision}" >> "${GITHUB_ENV}"
           echo "Deploy revision: ${deploy_revision}"
 
+      - name: Verify flattened POM resolves ${revision}
+        shell: bash
+        run: |
+          local_repo="${RUNNER_TEMP}/m2-verify"
+          rm -rf "${local_repo}"
+          mkdir -p "${local_repo}"
+
+          mvn -B -ntp -DskipTests -Drevision="${DEPLOY_REVISION}" -Dmaven.repo.local="${local_repo}" clean install
+
+          if grep -R --line-number '\${revision}' "${local_repo}/org/ndviet/test-parent-pom" --include='*.pom'; then
+            echo "Found unresolved \${revision} in generated Maven descriptor."
+            exit 1
+          fi
+
       - name: Publish to GitHub Maven Registry
         run: >
           mvn -B -ntp -DskipTests -Drevision=${{ env.DEPLOY_REVISION }} clean deploy
