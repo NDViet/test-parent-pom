@@ -99,7 +99,7 @@
         <staging>false</staging>
         <release>false</release>
         <nexus.url>https://s01.oss.sonatype.org</nexus.url>
-        <flattenMode>bom</flattenMode>
+        <flattenMode>resolveCiFriendliesOnly</flattenMode>
     </properties>
 
     <distributionManagement>
