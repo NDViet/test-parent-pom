@@ -45,7 +45,7 @@
         <github.organization>ndviet</github.organization>
         <github.branch>master</github.branch>
         <github.repository>test-parent-pom</github.repository>
-        <revision>25.3.0</revision>
+        <revision>26.3.0</revision>
         <test-automation-fwk.version>${revision}</test-automation-fwk.version>
         <test-java2robot-adapter.version>${revision}</test-java2robot-adapter.version>
         <java.version>17</java.version>

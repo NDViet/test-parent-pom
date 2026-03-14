@@ -16,6 +16,12 @@ if [ ! -f "${PARENT_POM}" ]; then
   exit 1
 fi
 
+PARENT_REVISION="$(xmllint --xpath "string(/*[local-name()='project']/*[local-name()='properties']/*[local-name()='revision'])" "${PARENT_POM}")"
+if [ -z "${PARENT_REVISION}" ]; then
+  echo "Could not resolve <revision> from ${PARENT_POM}"
+  exit 1
+fi
+
 TMP_OUTPUT="$(mktemp)"
 SEEN_KEYS="$(mktemp)"
 trap 'rm -f "${TMP_OUTPUT}" "${SEEN_KEYS}"' EXIT
@@ -121,7 +127,7 @@ EOF
 }
 
 {
-  cat <<'EOF'
+  cat <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
@@ -131,13 +137,13 @@ EOF
     <parent>
         <groupId>org.ndviet</groupId>
         <artifactId>test-parent-pom</artifactId>
-        <version>${revision}</version>
+        <version>${PARENT_REVISION}</version>
         <relativePath/>
     </parent>
 
     <artifactId>test-parent-pom-maven-cache-seed</artifactId>
     <name>Test Parent POM Maven Cache Seed</name>
-    <version>${revision}</version>
+    <version>${PARENT_REVISION}</version>
     <packaging>pom</packaging>
 
     <dependencies>
