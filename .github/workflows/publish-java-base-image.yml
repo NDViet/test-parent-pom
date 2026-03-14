@@ -91,6 +91,9 @@ jobs:
             echo "push=true" >> "${GITHUB_OUTPUT}"
           fi
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -107,6 +110,7 @@ jobs:
           context: .
           file: containers/java-base/Dockerfile
           push: ${{ steps.push_mode.outputs.push }}
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.image_meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
