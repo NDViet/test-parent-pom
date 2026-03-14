@@ -7,13 +7,13 @@
     <parent>
         <groupId>org.ndviet</groupId>
         <artifactId>test-parent-pom</artifactId>
-        <version>26.3.0</version>
+        <version>26.3.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>test-parent-pom-maven-cache-seed</artifactId>
     <name>Test Parent POM Maven Cache Seed</name>
-    <version>26.3.0</version>
+    <version>26.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <dependencies>
