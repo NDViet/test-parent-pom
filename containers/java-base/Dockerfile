@@ -1,4 +1,4 @@
-FROM maven:3.9.11-eclipse-temurin-17 AS maven-cache-builder
+FROM maven:3.9.11-eclipse-temurin-21 AS maven-cache-builder
 
 WORKDIR /opt/bootstrap
 COPY pom.xml /opt/bootstrap/test-parent-pom/pom.xml
@@ -7,7 +7,7 @@ COPY containers/java-base/maven-seed/pom.xml /opt/bootstrap/maven-seed/pom.xml
 RUN mvn -B -f /opt/bootstrap/test-parent-pom/pom.xml -DskipTests install \
     && mvn -B -f /opt/bootstrap/maven-seed/pom.xml -DskipTests -DincludeScope=test dependency:go-offline
 
-FROM maven:3.9.11-eclipse-temurin-17
+FROM maven:3.9.11-eclipse-temurin-21
 
 ARG GRADLE_VERSION=8.7
 
