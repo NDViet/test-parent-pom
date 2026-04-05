@@ -1,0 +1,194 @@
+import groovy.xml.XmlUtil
+import groovy.xml.XmlParser
+
+plugins {
+    id 'base'
+    id 'maven-publish'
+    id 'com.diffplug.spotless' version '7.2.1'
+}
+
+group = 'org.ndviet'
+
+repositories {
+    mavenCentral()
+}
+
+def pomTemplateFile = layout.projectDirectory.file('pom.xml').asFile
+def publicationPomFile = layout.buildDirectory.file('publications/parentPom/pom-default.xml')
+
+def parsePomTemplate = {
+    new XmlParser(false, false).parse(pomTemplateFile)
+}
+
+def resolveBaseRevision = {
+    def template = parsePomTemplate()
+    def revisionNode = template.properties?.getAt(0)?.revision?.getAt(0)
+    def revision = revisionNode?.text()?.trim()
+    if (!revision) {
+        throw new GradleException("Could not resolve <revision> from ${pomTemplateFile}")
+    }
+    revision
+}
+
+version = providers.gradleProperty('revision').orElse(providers.provider(resolveBaseRevision)).get()
+
+def generatedPomFile = layout.buildDirectory.file("generated/poms/${project.name}-${project.version}.pom")
+
+def renderPomXml = {
+    def template = parsePomTemplate()
+    def revisionNode = template.properties?.getAt(0)?.revision?.getAt(0)
+    if (revisionNode == null) {
+        throw new GradleException("Could not resolve <revision> from ${pomTemplateFile}")
+    }
+
+    revisionNode.setValue(project.version.toString())
+
+    XmlUtil.serialize(template).replace('${revision}', project.version.toString())
+}
+
+def githubRepositoryProvider = providers.gradleProperty('githubRepository')
+    .orElse(providers.environmentVariable('GITHUB_REPOSITORY'))
+    .orElse(providers.provider { "${project.group}/${project.name}" })
+
+def githubPackagesUsernameProvider = providers.gradleProperty('ghPackagesUsername')
+    .orElse(providers.environmentVariable('GH_MAVEN_USERNAME'))
+    .orElse(providers.environmentVariable('GH_PACKAGES_USERNAME'))
+    .orElse(providers.environmentVariable('GITHUB_ACTOR'))
+
+def githubPackagesTokenProvider = providers.gradleProperty('ghPackagesToken')
+    .orElse(providers.environmentVariable('GH_MAVEN_TOKEN'))
+    .orElse(providers.environmentVariable('GH_PACKAGES_TOKEN'))
+    .orElse(providers.environmentVariable('GITHUB_TOKEN'))
+
+tasks.register('renderPom') {
+    group = 'build'
+    description = 'Renders the parent POM with the resolved revision.'
+
+    inputs.file(pomTemplateFile)
+    inputs.property('revision', project.version.toString())
+    outputs.file(generatedPomFile)
+
+    doLast {
+        def outputFile = generatedPomFile.get().asFile
+        outputFile.parentFile.mkdirs()
+        outputFile.setText(renderPomXml(), 'UTF-8')
+    }
+}
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        googleJavaFormat()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+publishing {
+    publications {
+        parentPom(MavenPublication) {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+
+            pom.withXml {
+                def pomText = asString()
+                pomText.setLength(0)
+                pomText.append(renderPomXml())
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'githubPackages'
+            url = uri(providers.gradleProperty('publishRepositoryUrl')
+                .orElse(providers.provider { "https://maven.pkg.github.com/${githubRepositoryProvider.get()}" })
+                .get())
+            credentials {
+                username = githubPackagesUsernameProvider.orNull
+                password = githubPackagesTokenProvider.orNull
+            }
+        }
+    }
+}
+
+tasks.register('verifyGeneratedPom') {
+    group = 'verification'
+    description = 'Verifies that the published POM is fully resolved.'
+
+    dependsOn tasks.named('generatePomFileForParentPomPublication')
+
+    doLast {
+        def pomFile = publicationPomFile.get().asFile
+        if (!pomFile.exists()) {
+            throw new GradleException("Generated publication POM not found: ${pomFile}")
+        }
+
+        def text = pomFile.getText('UTF-8')
+        if (text.contains('${revision}')) {
+            throw new GradleException("Found unresolved \${revision} in generated publication POM.")
+        }
+
+        def publishedPom = new XmlParser(false, false).parseText(text)
+        def publishedVersion = publishedPom.version?.getAt(0)?.text()?.trim()
+        def publishedRevision = publishedPom.properties?.getAt(0)?.revision?.getAt(0)?.text()?.trim()
+        if (publishedVersion != project.version.toString()) {
+            throw new GradleException("Expected published version ${project.version}, found ${publishedVersion}.")
+        }
+        if (publishedRevision != project.version.toString()) {
+            throw new GradleException("Expected <revision>${project.version}</revision>, found ${publishedRevision}.")
+        }
+    }
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('renderPom')
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('verifyGeneratedPom')
+    dependsOn tasks.named('spotlessCheck')
+}
+
+tasks.register('formatJava') {
+    group = 'formatting'
+    description = 'Formats Java sources with Spotless.'
+
+    dependsOn tasks.named('spotlessApply')
+}
+
+def assertReleaseVersion = tasks.register('assertReleaseVersion') {
+    group = 'publishing'
+    description = 'Fails if the selected revision is still a SNAPSHOT.'
+
+    doLast {
+        if (project.version.toString().endsWith('-SNAPSHOT')) {
+            throw new GradleException("release requires a non-SNAPSHOT revision. Pass -Prevision=x.y.z.")
+        }
+    }
+}
+
+def deployTask = tasks.register('deploy') {
+    group = 'publishing'
+    description = 'Builds and publishes the resolved parent POM to the configured Maven repository.'
+
+    dependsOn tasks.named('build')
+    dependsOn tasks.named('publishParentPomPublicationToGithubPackagesRepository')
+}
+
+deployTask.configure {
+    mustRunAfter tasks.named('check')
+}
+
+tasks.register('release') {
+    group = 'publishing'
+    description = 'Publishes a non-SNAPSHOT release of the resolved parent POM.'
+
+    dependsOn assertReleaseVersion
+    dependsOn deployTask
+}
+
+deployTask.configure {
+    mustRunAfter assertReleaseVersion
+}

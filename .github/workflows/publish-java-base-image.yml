@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       image_name:
-        description: "Docker Hub repository (namespace/name)"
+        description: "GHCR image name (ghcr.io/owner/name)"
         required: false
-        default: "ndviet/test-automation-java-base"
+        default: "ghcr.io/ndviet/test-automation-java-base"
       push_image:
-        description: "Push built image to Docker Hub"
+        description: "Push built image to GHCR"
         required: true
         type: boolean
         default: true
@@ -18,6 +18,8 @@ on:
     tags:
       - "v*"
     paths:
+      - "build.gradle"
+      - "settings.gradle"
       - ".github/workflows/publish-java-base-image.yml"
       - "containers/java-base/**"
       - "containers/build-java-base-image.sh"
@@ -25,6 +27,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 concurrency:
   group: publish-java-base-image-${{ github.ref }}
@@ -35,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
-      IMAGE_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.image_name || vars.DOCKERHUB_JAVA_BASE_IMAGE || 'ndviet/test-automation-java-base' }}
+      IMAGE_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.image_name || vars.GHCR_JAVA_BASE_IMAGE || 'ghcr.io/ndviet/test-automation-java-base' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -97,12 +100,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
+      - name: Log in to GHCR
         if: steps.push_mode.outputs.push == 'true'
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ secrets.GH_PACKAGES_USERNAME }}
+          password: ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - name: Build and publish image
         uses: docker/build-push-action@v6

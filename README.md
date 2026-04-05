@@ -21,22 +21,63 @@ In the same directory, clone this repository first and after that clone other de
 git clone git@github.com:ndviet/test-parent-pom.git
 ```
 
+## Gradle build, deploy, and release
+
+`pom.xml` remains the source of truth for the parent POM metadata. Gradle now drives this repository's build and publishing flow by rendering a resolved POM from that template.
+
+Build and verify the generated parent POM:
+
+```shell
+gradle build
+```
+
+Format Java sources:
+
+```shell
+gradle formatJava
+```
+
+Install the parent POM to your local Maven cache:
+
+```shell
+gradle publishToMavenLocal
+```
+
+Deploy a snapshot or release revision to GitHub Packages:
+
+```shell
+GH_PACKAGES_USERNAME=...
+GH_PACKAGES_TOKEN=...
+GITHUB_REPOSITORY=ndviet/test-parent-pom
+gradle deploy -Prevision=26.3.0-SNAPSHOT
+```
+
+Publish a non-SNAPSHOT release:
+
+```shell
+GH_PACKAGES_USERNAME=...
+GH_PACKAGES_TOKEN=...
+GITHUB_REPOSITORY=ndviet/test-parent-pom
+gradle release -Prevision=26.3.0
+```
+
 ## Java base image (for downstream repos)
 
 This repository provides a standalone base image: `test-automation-java-base`.
 
 It contains:
 
-- Java 17
+- Java 21
 - Maven
 - Gradle CLI
+- Official base image: `gradle:jdk21`
 - Pre-seeded Maven local repository based on this parent POM dependency/plugin management
 - Offline-first execution defaults (`mvn -o`, `gradle --offline`) to prevent network fetch in downstream runs
 
 Build locally:
 
 ```shell
-./containers/build-java-base-image.sh ndviet/test-automation-java-base
+./containers/build-java-base-image.sh ghcr.io/ndviet/test-automation-java-base
 ```
 
 `containers/java-base/maven-seed/pom.xml` is generated from `pom.xml` by:
@@ -49,24 +90,25 @@ Do not update the seed POM manually.
 
 Tags created:
 
-- `ndviet/test-automation-java-base:latest`
-- `ndviet/test-automation-java-base:<revision>` (from `<revision>` in `pom.xml`)
+- `ghcr.io/ndviet/test-automation-java-base:latest`
+- `ghcr.io/ndviet/test-automation-java-base:<revision>` (from `<revision>` in `pom.xml`)
 
 GitHub Actions workflow:
 
 - `.github/workflows/publish-java-base-image.yml`
+- `.github/workflows/publish-maven-github.yml`
 
 Workflow tagging behavior:
 
-- `push` on `master`: publishes `ndviet/test-automation-java-base:<revision>-SNAPSHOT`
+- `push` on `master`: publishes `ghcr.io/ndviet/test-automation-java-base:<revision>-SNAPSHOT`
 - `push` on tag `v*`: publishes release tags
-  - `ndviet/test-automation-java-base:latest`
-  - `ndviet/test-automation-java-base:<revision-without-SNAPSHOT>`
+  - `ghcr.io/ndviet/test-automation-java-base:latest`
+  - `ghcr.io/ndviet/test-automation-java-base:<revision-without-SNAPSHOT>`
 
 Required repository secrets for publish:
 
-- `DOCKER_USERNAME`
-- `DOCKER_PASSWORD`
+- `GH_PACKAGES_USERNAME`
+- `GH_PACKAGES_TOKEN`
 
 Optional runtime override (if online fetch is intentionally needed):
 

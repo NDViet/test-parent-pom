@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-IMAGE_NAME="${1:-ndviet/test-automation-java-base}"
+IMAGE_NAME="${1:-ghcr.io/ndviet/test-automation-java-base}"
 SYNC_SCRIPT="${SCRIPT_DIR}/java-base/sync-maven-seed.sh"
 
 if ! command -v docker >/dev/null 2>&1; then
