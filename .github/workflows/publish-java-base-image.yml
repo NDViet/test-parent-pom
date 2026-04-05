@@ -43,15 +43,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install XML tooling
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libxml2-utils
-
-      - name: Sync Maven seed POM
-        run: ./containers/java-base/sync-maven-seed.sh
-
-      - name: Verify Maven seed POM is committed
-        run: git diff --exit-code -- containers/java-base/maven-seed/pom.xml
-
       - name: Resolve image tags
         id: image_meta
         shell: bash

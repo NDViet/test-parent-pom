@@ -71,7 +71,7 @@ It contains:
 - Maven
 - Gradle CLI
 - Official base image: `gradle:jdk21`
-- Pre-seeded Maven local repository based on this parent POM dependency/plugin management
+- Pre-seeded Maven local repository with the published `test-parent-pom` artifact
 - Offline-first execution defaults (`mvn -o`, `gradle --offline`) to prevent network fetch in downstream runs
 
 Build locally:
@@ -79,14 +79,6 @@ Build locally:
 ```shell
 ./containers/build-java-base-image.sh ghcr.io/ndviet/test-automation-java-base
 ```
-
-`containers/java-base/maven-seed/pom.xml` is generated from `pom.xml` by:
-
-```shell
-./containers/java-base/sync-maven-seed.sh
-```
-
-Do not update the seed POM manually.
 
 Tags created:
 

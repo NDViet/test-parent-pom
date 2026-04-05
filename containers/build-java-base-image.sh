@@ -4,15 +4,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 IMAGE_NAME="${1:-ghcr.io/ndviet/test-automation-java-base}"
-SYNC_SCRIPT="${SCRIPT_DIR}/java-base/sync-maven-seed.sh"
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker is required but was not found in PATH"
-  exit 1
-fi
-
-if [ ! -x "${SYNC_SCRIPT}" ]; then
-  echo "Seed sync script not found or not executable: ${SYNC_SCRIPT}"
   exit 1
 fi
 
@@ -21,9 +15,6 @@ if [ -z "${REVISION}" ]; then
   echo "Could not resolve <revision> from ${PROJECT_ROOT}/pom.xml"
   exit 1
 fi
-
-echo "[java-base] Syncing Maven seed POM from parent pom.xml"
-"${SYNC_SCRIPT}"
 
 echo "[java-base] Building image ${IMAGE_NAME} with tags: latest, ${REVISION}"
 docker build \
