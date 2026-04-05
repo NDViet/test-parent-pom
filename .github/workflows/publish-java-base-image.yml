@@ -65,7 +65,8 @@ jobs:
             else
               deploy_revision="${base_revision}-SNAPSHOT"
             fi
-            deploy_tags="${IMAGE_NAME}:${deploy_revision}"
+            deploy_tags="${IMAGE_NAME}:latest"
+            deploy_tags+=$'\n'"${IMAGE_NAME}:${deploy_revision}"
           fi
 
           echo "revision=${deploy_revision}" >> "${GITHUB_OUTPUT}"

@@ -92,7 +92,9 @@ GitHub Actions workflow:
 
 Workflow tagging behavior:
 
-- `push` on `master`: publishes `ghcr.io/ndviet/test-automation-java-base:<revision>-SNAPSHOT`
+- `push` on `master`: publishes:
+  - `ghcr.io/ndviet/test-automation-java-base:latest`
+  - `ghcr.io/ndviet/test-automation-java-base:<revision>-SNAPSHOT`
 - `push` on tag `v*`: publishes release tags
   - `ghcr.io/ndviet/test-automation-java-base:latest`
   - `ghcr.io/ndviet/test-automation-java-base:<revision-without-SNAPSHOT>`
