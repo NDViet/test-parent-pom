@@ -70,7 +70,7 @@
         <selenium-java.version>4.41.0</selenium-java.version>
         <qatools.ashot>1.5.4</qatools.ashot>
         <snakeyaml.version>2.6</snakeyaml.version>
-        <sshd-core.version>3.0.0-M2</sshd-core.version>
+        <sshd-core.version>3.0.0-M3</sshd-core.version>
         <commons-io.version>2.21.0</commons-io.version>
         <javalib-core.version>2.0.3</javalib-core.version>
         <json-path.version>3.0.0</json-path.version>
