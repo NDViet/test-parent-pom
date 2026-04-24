@@ -71,7 +71,7 @@
         <qatools.ashot>1.5.4</qatools.ashot>
         <snakeyaml.version>2.6</snakeyaml.version>
         <sshd-core.version>3.0.0-M2</sshd-core.version>
-        <commons-io.version>2.21.0</commons-io.version>
+        <commons-io.version>2.22.0</commons-io.version>
         <javalib-core.version>2.0.3</javalib-core.version>
         <json-path.version>3.0.0</json-path.version>
         <log4j2.version>3.0.0-beta2</log4j2.version>
